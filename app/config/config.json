@@ -1,0 +1,59 @@
+[
+    {
+        "id":1,
+        "title": "Sujeto 1",
+        "start": "2016-02-12 13:00",
+        "color":"#31b0d5",
+        "timezone":"America/Santiago",
+        "estado":0,
+        "lugar":"lugar",
+        "entrevistador":"entrevistador",
+        "cargo":"cargo",
+        "obs":"obs",
+        "notificacion":false
+        	
+    },
+    {
+        "id":2,
+        "title": "Sujeto 2",
+        "start": "2016-02-22 14:00",
+        "color":"#31b0d5",
+        "timezone":"America/Santiago",
+        "estado":1,
+        "lugar":"lugar2",
+        "entrevistador":"entrevistador2",
+        "cargo":"cargo2",
+        "obs":"obs2",
+        "notificacion":false
+        	
+    },
+    {
+        "id":3,
+        "title": "Sujeto 3",
+        "start": "2016-02-27 11:00",
+        "color":"#31b0d5",
+        "timezone":"America/Santiago",
+        "estado":2,
+        "lugar":"lugar3",
+        "entrevistador":"entrevistador3",
+        "cargo":"cargo3",
+        "obs":"obs3",
+        "notificacion":false
+        	
+    },
+    {
+        "id":"4",
+        "title": "eliminar",
+        "start": "2016-02-10 11:00",
+        "color":"#31b0d5",
+        "timezone":"America/Santiago",
+        "estado":2,
+        "lugar":"lugar3",
+        "entrevistador":"entrevistador3",
+        "cargo":"cargo3",
+        "obs":"obs3",
+        "notificacion":false
+            
+    }
+
+]
