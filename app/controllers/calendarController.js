@@ -9,11 +9,23 @@
         .module('widget-calendar')
         .controller('calendarController', calendarController);
 
-    calendarController.$inject = ['$complie'];
+    calendarController.$inject = ['$scope', '$uibModalInstance', 'eventId'];
 
-    function calendarController() {
+    function calendarController($scope, $uibModalInstance, eventId) {
         var vm = this;
-       // vm.xd="xddd";
-        
+        $scope.close = close;
+        $scope.eventId = eventId;
+        $scope.deleteEvent = deleteEvent;
+       ///////////////////////
+       function close(){
+       		$uibModalInstance.dismiss('cancel');
+       }
+       function deleteEvent(item){
+
+    			$uibModalInstance.close(item);
+ 
+       }
+
+
     }
 })();

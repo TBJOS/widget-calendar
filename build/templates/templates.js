@@ -1,16 +1,18 @@
 if(typeof TEMPLATES === 'undefined') {var TEMPLATES = {};}
-TEMPLATES['app/directives/tbjscheduling/modal.html'] = "<div class=\"modal-header\">\n" +
-    "  <h3>{{modalOptions.headerText}}</h3>\n" +
+TEMPLATES['app/directives/tbjscheduling/modal.html'] = "<div>	\n" +
+    "	<div class=\"modal-header\">\n" +
+    "		 <button type=\"button\" ng-click=\"close()\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span></button>\n" +
+    "	    <h3 class=\"modal-title\">{{modalTitle}}</h3>\n" +
+    "	</div>\n" +
+    "	<div class=\"modal-body\">\n" +
+    "		{{modalBody}}    \n" +
+    "	</div>\n" +
+    "	<div class=\"modal-footer\">\n" +
+    "		<button class=\"btn btn-primary\" type=\"button\" ng-click=\"deleteEvent(eventId)\">OK</button>\n" +
+    "	    <button class=\"btn btn-warning\" type=\"button\" ng-click=\"close()\">Cancel</button>\n" +
+    "	</div>\n" +
     "</div>\n" +
-    "<div class=\"modal-body\">\n" +
-    "  <p>{{modalOptions.bodyText}}</p>\n" +
-    "</div>\n" +
-    "<div class=\"modal-footer\">\n" +
-    "  <button type=\"button\" class=\"btn\" \n" +
-    "          data-ng-click=\"modalOptions.close()\">{{modalOptions.closeButtonText}}</button>\n" +
-    "  <button class=\"btn btn-primary\" \n" +
-    "          data-ng-click=\"modalOptions.ok();\">{{modalOptions.actionButtonText}}</button>\n" +
-    "</div>"; 
+    ""; 
 if(typeof TEMPLATES === 'undefined') {var TEMPLATES = {};}
 TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "\n" +
     "<div class=\"container-fluid\">\n" +
@@ -23,11 +25,10 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "\n" +
     "		    		<span class=\"label label-danger\">Rechazado</span>\n" +
     "    		</div>\n" +
     "    		<div class=\"col-md-4 well\" >\n" +
-    "    			<!--<input type=\"button\" value=\"x\" ng-show=\"info\" ng-click=\"close()\">-->\n" +
     "    			<form  class=\"form-horizontal\" role=\"form\">\n" +
     "					<div class=\"form-group\" ng-show=\"upbar\">\n" +
     "					    <a href=\"#\" class=\"col-sm-4 control-label\" ng-click=\"clean()\">Continuar</a>\n" +
-    "					    <a confirm=\"Are you sure?\" confirm-if=\"checked\" href=\"#\" class=\"col-sm-8 control-label\" ng-click=\"remove(id)\" >X</a>\n" +
+    "					    <button data-toggle=\"tooltip\" data-placement=\"right\" title=\"Eliminar\" type=\"button\" ng-click=\"remove(id)\" class=\"control-label close\" aria-hidden=\"true\">&times;</button>\n" +
     "					</div>\n" +
     "					<div class=\"form-group\">\n" +
     "					    <label for=\"\" class=\"col-sm-4 control-label\">Fecha:</label>\n" +

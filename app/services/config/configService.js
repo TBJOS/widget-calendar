@@ -23,7 +23,6 @@
             var req = $http.get('http://localhost:3000/app/config/config.json');
             req.then(function(data){
                 if (data.statusText =="OK"){
-                    console.log(data,"xx");
                     var col = changeColor(data.data)
                     cb(col)
                 }

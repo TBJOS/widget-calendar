@@ -10,16 +10,14 @@
         //.filter('date',tbjschedulingFilter)
         .directive('tbjScheduling', tbjschedulingDirective);
 
-    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService','uiCalendarConfig','configService',];
-
-    function tbjschedulingDirective(directivesRoute, templateService,uiCalendarConfig,configService) {
+    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', 'ModalService', '$uibModal'];
+    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, ModalService, $uibModal) {
         return {
             restrict: 'AE',
             template: templateService.get(directivesRoute + 'tbjscheduling/tbjschedulingView.html'),
             replace: true,
             scope: false,
             link: function(scope, element, attrs) {
-
                 var date = new Date();
                 var mi = date.getMinutes();
                 var h = date.getHours();
@@ -30,15 +28,8 @@
                 var fechaClick="";
                 var eventClick=false;
                 scope.id="";
-                scope.fecha=moment().format('YYYY-MM-DD');  // 5am PDT
-                scope.hora=moment().format('HH:mm');  // 5am PDT
-               // scope.xx=y+"-"+m+"-"+d;//date.toLocaleTimeString()
-               // scope.fecha=new Date();//date.toLocaleString();//moment().format('YYYY-MM-DD'); //HH:m:s
-               // scope.fecha=scope.fecha.tz('America/Santiago').format('ha z');  // 5am PDT
-               // scope.fecha= new Date(scope.fecha);
-                //var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-                //scope.fecha= new Date(Date.now() - tzoffset);
-                ///////////////////////////
+                scope.fecha=moment().format('YYYY-MM-DD');
+                scope.hora=moment().format('HH:mm');
                 scope.lugar = "" ;  
                 scope.entrevistador = "" ;  
                 scope.cargo = "" ;  
@@ -49,21 +40,21 @@
                 scope.upbar = false;
                 scope.eventSources=[];
                 scope.addEditEvent = addEditEvent;
-                scope.close = close;
                 scope.remove = remove;
+                scope.modalBody = "¿Eliminar este evento?";
+                scope.modalTitle = "Eliminar evento.";
                 scope.clean = clean;
                 scope.onDayClick = onDayClick; 
                 scope.alertEventOnClick = alertEventOnClick;
                 scope.eventRender = eventRender;
                 scope.eventMouseover = eventMouseover;
                 scope.eventMouseout = eventMouseout;
+                scope.deleteEvent = deleteEvent;
                 scope.config = false;
                 init();
                 /////////////////////////////
-                function addEditEvent(index) {
-                    //console.log("fechaaaa", scope.fecha+" "+scope.hora);
+                function addEditEvent(index) {  /// *** agrega o edita un evento *** ///
                     if (!eventClick){
-                        //scope.uiConfig.calendar.events.
                         scope.config.push({
                             title: 'Sujeto A',
                             start:scope.fecha+" "+scope.hora,// scope.fecha.toJSON(),
@@ -75,7 +66,6 @@
                             obs:scope.obs,
                             notificacion:scope.notificar,
                             estado:0//0=en espera, 1=aprobado
-                            
                         });                    
                     }else{//modo edicion
                         var indexConfig = findIndexByKeyValue(scope.config, "id", index);
@@ -86,22 +76,38 @@
                         scope.config[indexConfig].obs=scope.obs;
                         scope.config[indexConfig].notificacion=scope.notificar;
                         scope.config[indexConfig].estado=0;
-                        //for (var i = 0; i < scope.config[].length; i++) {
-                          //  if(indexConfig==scope.config[indexConfig])
-                        //}
-                    }
-                   // console.log(scope.uiConfig.calendar.events[scope.uiConfig.calendar.events.length-1],"Agregado..");
-               //limpiar datos
-                    clean();
+                    } 
+                    clean(); 
                 };
-                function remove(index) {
-                   // $window.confirm('Are you sure you want to delete the Ad?');
-                    var indexConfig = findIndexByKeyValue(scope.config, "id", index);
+
+                function remove(index) { /// *** show modal *** ///
+                    var modalInstance = $uibModal.open({
+
+                      animation: true,
+                      templateUrl: directivesRoute + 'tbjscheduling/modal.html',
+                      controller: 'calendarController',
+                      scope: scope,
+                      size: 'sm',
+                      resolve: {
+                        eventId: function(){
+                            return index;
+                        }
+                      }
+                    });
+                    modalInstance.result.then(function (id) {
+                      deleteEvent(id);
+                    }); 
+                }
+
+                function deleteEvent(id){ /// *** elimina un evento *** ///
+                    var indexConfig = findIndexByKeyValue(scope.config, "id", id);
                     scope.config.splice(indexConfig,1);
                     clean();
                     scope.upbar=false;
                 }
-                function clean(){
+
+
+                function clean(){ /// *** limpia el formulario de eventos *** ///
                     scope.hora=moment().format('HH:mm');
                     scope.lugar = "" ;  
                     scope.entrevistador = "" ;  
@@ -111,22 +117,13 @@
                     scope.upbar=false;
                     eventClick=false; 
                 }
-                function close(){
-                   //  eventClick=false;
-                }
-                function onDayClick(dates, allDay, jsEvent){
-                 //   var tzoffset = (new Date()).getTimezoneOffset() * 60000; //offset in milliseconds
-               // scope.fecha= new Date(Date.now() - tzoffset);
-
-                    scope.fecha=dates.format();//new Date(dates);
+                function onDayClick(dates, allDay, jsEvent){ /// *** click en una fecha en el calendario *** ///
+                    scope.fecha=dates.format();
                     fechaClick=scope.fecha;
-
-                     //scope.fecha=moment(scope.fecha).tz('America/Santiago').format('YYYY-MM-DD HH:mm');
                 };
                 function alertOnDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
-                    console.log("sa");
                 }
-                function findIndexByKeyValue(arraytosearch, key, valuetosearch) {
+                function findIndexByKeyValue(arraytosearch, key, valuetosearch) { /// *** busca el indice del arreglo de un objeto basado en un id del objeto *** ///
                     var estado =null;
                     for (var i = 0; i < arraytosearch.length; i++) {
                         if (arraytosearch[i][key] == valuetosearch) {
@@ -135,10 +132,8 @@
                     }
                     return estado;
                 }
-                function alertEventOnClick(calEvent, jsEvent, view){
-                        scope.upbar=true;
-                   // element.attr('title', calEvent.entrevistador);
-                   console.log(calEvent.id,"...........id");
+                function alertEventOnClick(calEvent, jsEvent, view){ /// *** click en un evento *** ///
+                    scope.upbar=true;
                     scope.id=calEvent.id;
                     eventClick=true;
                     scope.info = true;
@@ -152,22 +147,11 @@
                     scope.obs = calEvent.obs ;  
                     scope.notificar = calEvent.notificacion ;
                 };
-                     /* Render Tooltip */
                 function eventRender( event, element, view ) {
-                   // console.log("eventRender");
-
-                    //element.attr('title', event.title);
-                    //element.attr('entrevistador', event.entrevistador);
-                               
-                    //element.attr({'tooltip': event.title,
-                      //            'tooltip-append-to-body': true});
-                   // $compile(element)(scope);
                 };
-                function eventMouseover (calEvent, jsEvent, view) {
+                function eventMouseover (calEvent, jsEvent, view) { /// *** paso del mouse "entra" en un evento *** ///
                     if (!eventClick){
                         scope.info = false;
-                        console.log("mouseover",calEvent);
-
                         scope.fecha  = calEvent._start._i;
                         scope.lugar = calEvent.lugar ;  
                         scope.entrevistador = calEvent.entrevistador ;  
@@ -175,72 +159,56 @@
                         scope.obs = calEvent.obs ;  
                         scope.notificar = calEvent.notificacion ;               
                     }
-
-                 }
-                 function eventMouseout (event, jsEvent, view) {
-                    console.log(eventClick,"eventclick")
+                 };
+                function eventMouseout (event, jsEvent, view) { /// *** paso del mouse "sale" un evento *** ///
                     if (!eventClick){
-
-                    
                         scope.info = true;
                         if (fechaClick==""){
-
                             scope.fecha  = moment().format('YYYY-MM-DD');
                         }else{
                             scope.fecha  = fechaClick;
                         }
-                        //scope.fecha  = scope.fechaClick;
                         scope.hora=moment().format('HH:mm');
                         scope.lugar = "" ;  
                         scope.entrevistador = "" ;  
                         scope.cargo = "" ;  
                         scope.obs = "";  
                         scope.notificar = false ;
-                       
                     }
-                     //eventClick=false; 
-                  } 
+                  };  
                 function init(){
-                    configService.get(function(config){
-                        console.log(config,"config");
-                    scope.config = config;
-                    if (config.length > 0){
-                     /* config object */
-                        scope.uiConfig = {
-                            calendar:{
-                                monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
-                                    'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                                ],
-                                dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
-
-                                height: 450,
-                                editable: false,
-                                timezone: "local",
-                                header:{
-                                  left: 'month agendaWeek agendaDay',
-                                  center: 'title',
-                                  right: 'today prev,next'
-                                },
-                                defaultView: 'month',
-                                selectable: true,
-                                selectHelper: true,
-                                events : scope.config, 
-                                dayClick: scope.onDayClick,
-                                eventClick: scope.alertEventOnClick,
-                                eventDrop: scope.alertOnDrop,
-                                eventResize: scope.alertOnResize,
-                                eventRender: scope.eventRender,
-                                eventMouseover:scope.eventMouseover,
-                                eventMouseout:scope.eventMouseout
-                            }
-                        };
-                    }else{console.log("no data!")} 
+                    configService.get(function(config){  /// *** trae los eventos para cargarlos *** ///
+                        scope.config = config;
+                        if (config.length > 0){
+                            scope.uiConfig = {
+                                calendar:{
+                                    monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
+                                        'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                                    ],
+                                    dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
+                                    height: 450,
+                                    editable: false,
+                                    timezone: "local",
+                                    header:{
+                                      left: 'today',
+                                      center: 'title',
+                                      right: 'prev,next'
+                                    },
+                                    defaultView: 'month',
+                                    selectable: true,
+                                    selectHelper: true,
+                                    events : scope.config, 
+                                    dayClick: scope.onDayClick,
+                                    eventClick: scope.alertEventOnClick,
+                                    eventDrop: scope.alertOnDrop,
+                                    eventResize: scope.alertOnResize,
+                                    eventRender: scope.eventRender,
+                                    eventMouseover:scope.eventMouseover,
+                                    eventMouseout:scope.eventMouseout
+                                }
+                            };
+                        }else{console.log("no data!")} 
                     });
-
-
-                    /* add custom event*/
-
-
                 }
             }
         };

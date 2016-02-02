@@ -4,5 +4,5 @@
 
 (function() {
     angular
-            .module('widget-calendar', ['ngRoute','ui.calendar','ui.bootstrap']);
+            .module('widget-calendar', ['ngRoute','ui.calendar','ui.bootstrap','angularModalService']);
 })();
