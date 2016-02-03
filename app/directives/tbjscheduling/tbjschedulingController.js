@@ -40,49 +40,70 @@
                 scope.upbar = false;
                 scope.eventSources=[];
                 scope.addEditEvent = addEditEvent;
+                scope.alertOnDrop= alertOnDrop;
+                scope.addEvent = addEvent;
                 scope.remove = remove;
-                scope.modalBody = "¿Eliminar este evento?";
-                scope.modalTitle = "Eliminar evento.";
+                scope.modal = modal;
                 scope.clean = clean;
                 scope.onDayClick = onDayClick; 
                 scope.alertEventOnClick = alertEventOnClick;
                 scope.eventRender = eventRender;
                 scope.eventMouseover = eventMouseover;
                 scope.eventMouseout = eventMouseout;
-                scope.deleteEvent = deleteEvent;
+                scope.okEvent = deleteEvent;
                 scope.config = false;
                 init();
                 /////////////////////////////
                 function addEditEvent(index) {  /// *** agrega o edita un evento *** ///
-                    if (!eventClick){
-                        scope.config.push({
-                            title: 'Sujeto A',
-                            start:scope.fecha+" "+scope.hora,// scope.fecha.toJSON(),
-                            color:col,
-                            timezone:'America/Santiago',
-                            lugar:scope.lugar,
-                            entrevistador:scope.entrevistador,
-                            cargo:scope.cargo,
-                            obs:scope.obs,
-                            notificacion:scope.notificar,
-                            estado:0//0=en espera, 1=aprobado
-                        });                    
-                    }else{//modo edicion
-                        var indexConfig = findIndexByKeyValue(scope.config, "id", index);
-                        scope.config[indexConfig].start=scope.fecha+" "+scope.hora;
-                        scope.config[indexConfig].color=col;
-                        scope.config[indexConfig].lugar=scope.lugar;
-                        scope.config[indexConfig].entrevistador=scope.entrevistador;
-                        scope.config[indexConfig].obs=scope.obs;
-                        scope.config[indexConfig].notificacion=scope.notificar;
-                        scope.config[indexConfig].estado=0;
-                    } 
-                    clean(); 
+                        scope.modalBody = "¿Confirma los datos ingresados?";
+                        scope.modalTitle = "Confirmar";
+                        if (!eventClick){
+                            modal(0, 'newEvent');            
+                        }else{//modo edicion
+                            modal(index, 'editEvent');
+                        } 
                 };
+                function addEvent () {
+                    scope.config.push({
+                        title: 'Sujeto A',
+                        start:scope.fecha+" "+scope.hora,// scope.fecha.toJSON(),
+                        color:col,
+                        timezone:'America/Santiago',
+                        lugar:scope.lugar,
+                        entrevistador:scope.entrevistador,
+                        cargo:scope.cargo,
+                        obs:scope.obs,
+                        notificacion:scope.notificar,
+                        estado:0//0=en espera, 1=aprobado
+                    });    
+                }
+                function editEvent(index){
+                    var indexConfig = findIndexByKeyValue(scope.config, "id", index);
+                    scope.config[indexConfig].start=scope.fecha+" "+scope.hora;
+                    scope.config[indexConfig].color=col;
+                    scope.config[indexConfig].lugar=scope.lugar;
+                    scope.config[indexConfig].entrevistador=scope.entrevistador;
+                    scope.config[indexConfig].obs=scope.obs;
+                    scope.config[indexConfig].cargo=scope.cargo;
+                    scope.config[indexConfig].notificacion=scope.notificar;
+                    scope.config[indexConfig].estado=0;
+                }
+                function modal(index, type){
+                    switch(type){
+                        case 'delete':
+                            scope.okEvent = deleteEvent;
+                            break;
+                        case 'newEvent':
+                            scope.okEvent = addEvent;
+                            break;
+                        case 'editEvent':
+                            scope.okEvent = editEvent;
+                            break;
+                        case 'onDrop':
+                            scope.okEvent = dropEditEvent;    
+                    }
 
-                function remove(index) { /// *** show modal *** ///
                     var modalInstance = $uibModal.open({
-
                       animation: true,
                       templateUrl: directivesRoute + 'tbjscheduling/modal.html',
                       controller: 'calendarController',
@@ -94,19 +115,28 @@
                         }
                       }
                     });
-                    modalInstance.result.then(function (id) {
-                      deleteEvent(id);
+                    modalInstance.result.then(function (id) {//entra cuando se le da ok al modal
+                        scope.okEvent(id);
+                        clean(); 
                     }); 
                 }
-
+                function remove(index) { /// *** show modal *** ///
+                    scope.modalBody = "¿Eliminar este evento?";
+                    scope.modalTitle = "Eliminar evento.";
+                    modal(index, 'delete');
+                }
                 function deleteEvent(id){ /// *** elimina un evento *** ///
                     var indexConfig = findIndexByKeyValue(scope.config, "id", id);
                     scope.config.splice(indexConfig,1);
                     clean();
                     scope.upbar=false;
                 }
-
-
+                function dropEditEvent(id){
+                    var indexConfig = findIndexByKeyValue(scope.config, "id",id);
+                    scope.config[indexConfig].start=scope.newDate;
+                    scope.config[indexConfig].color=col;
+                    scope.config[indexConfig].estado=0;
+                }
                 function clean(){ /// *** limpia el formulario de eventos *** ///
                     scope.hora=moment().format('HH:mm');
                     scope.lugar = "" ;  
@@ -118,10 +148,19 @@
                     eventClick=false; 
                 }
                 function onDayClick(dates, allDay, jsEvent){ /// *** click en una fecha en el calendario *** ///
-                    scope.fecha=dates.format();
-                    fechaClick=scope.fecha;
+                    var clickDay=dates.format();
+                    var now=moment(new Date(Date.now())).format('YYYY-MM-DD');
+                    var diff=moment(clickDay).diff(now, 'days');
+                    if (diff>=0){//solo puede ingresar eventos antes de la fecha de hoy
+                        scope.fecha=dates.format();
+                        fechaClick=scope.fecha;
+                    }
                 };
-                function alertOnDrop(event, dayDelta, minuteDelta, allDay, revertFunc, jsEvent, ui, view){
+                function alertOnDrop(event, delta, revertFunc, jsEvent, ui, view){
+                    scope.newDate=moment(event._start._d).format('YYYY-MM-DD HH:mm');
+                    scope.modalBody = "Se modificará la fecha del evento, ¿continuar?";
+                    scope.modalTitle = "Modificar Evento";
+                    modal(event.id,"onDrop");
                 }
                 function findIndexByKeyValue(arraytosearch, key, valuetosearch) { /// *** busca el indice del arreglo de un objeto basado en un id del objeto *** ///
                     var estado =null;
@@ -187,7 +226,7 @@
                                     ],
                                     dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
                                     height: 450,
-                                    editable: false,
+                                    editable: true,
                                     timezone: "local",
                                     header:{
                                       left: 'today',

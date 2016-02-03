@@ -15,15 +15,13 @@
         var vm = this;
         $scope.close = close;
         $scope.eventId = eventId;
-        $scope.deleteEvent = deleteEvent;
+        $scope.okEvent = okEvent;
        ///////////////////////
        function close(){
        		$uibModalInstance.dismiss('cancel');
        }
-       function deleteEvent(item){
-
-    			$uibModalInstance.close(item);
- 
+       function okEvent(item,type){
+    		$uibModalInstance.close(item);
        }
 
 
