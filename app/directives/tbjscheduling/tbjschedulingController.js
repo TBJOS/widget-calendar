@@ -7,7 +7,6 @@
 
     angular
         .module('widget-calendar')
-        //.filter('date',tbjschedulingFilter)
         .directive('tbjScheduling', tbjschedulingDirective);
 
     tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', 'ModalService', '$uibModal'];
@@ -54,6 +53,40 @@
                 scope.config = false;
                 init();
                 /////////////////////////////
+                function onDayClick(dates, allDay, jsEvent){ /// *** click en una fecha en el calendario *** ///
+                    var clickDay=dates.format();
+                    console.log('clickDay', clickDay);
+                    var event = {
+                        date: clickDay
+                    };
+
+                    var modalInstance = $uibModal.open({
+                      animation: true,
+                      templateUrl: directivesRoute + 'tbjscheduling/event.html',
+                      controller: 'eventController',
+                      controllerAs: 'event',
+                      scope: scope,
+                      size: 'md',
+                      resolve: {
+                        event: function(){
+                            return event;
+                        }
+                      }
+                    });
+                    modalInstance.result.then(function (id) {//entra cuando se le da ok al modal
+                        scope.okEvent(id);
+                        clean(); 
+                    }); 
+                    /*var now=moment(new Date(Date.now())).format('YYYY-MM-DD');
+                    var diff=moment(clickDay).diff(now, 'days');
+                    if (diff>=0){//solo puede ingresar eventos antes de la fecha de hoy
+                        scope.fecha=dates.format();
+                        fechaClick=scope.fecha;
+                    }*/
+                };
+
+
+
                 function addEditEvent(index) {  /// *** agrega o edita un evento *** ///
                         scope.modalBody = "¿Confirma los datos ingresados?";
                         scope.modalTitle = "Confirmar";
@@ -63,6 +96,7 @@
                             modal(index, 'editEvent');
                         } 
                 };
+
                 function addEvent () {
                     scope.config.push({
                         title: 'Sujeto A',
@@ -76,7 +110,8 @@
                         notificacion:scope.notificar,
                         estado:0//0=en espera, 1=aprobado
                     });    
-                }
+                };
+
                 function editEvent(index){
                     var indexConfig = findIndexByKeyValue(scope.config, "id", index);
                     scope.config[indexConfig].start=scope.fecha+" "+scope.hora;
@@ -87,7 +122,8 @@
                     scope.config[indexConfig].cargo=scope.cargo;
                     scope.config[indexConfig].notificacion=scope.notificar;
                     scope.config[indexConfig].estado=0;
-                }
+                };
+
                 function modal(index, type){
                     switch(type){
                         case 'delete':
@@ -105,10 +141,10 @@
 
                     var modalInstance = $uibModal.open({
                       animation: true,
-                      templateUrl: directivesRoute + 'tbjscheduling/modal.html',
-                      controller: 'calendarController',
+                      templateUrl: directivesRoute + 'tbjscheduling/event.html',
+                      controller: 'EventController',
                       scope: scope,
-                      size: 'sm',
+                      size: 'lg',
                       resolve: {
                         eventId: function(){
                             return index;
@@ -119,24 +155,28 @@
                         scope.okEvent(id);
                         clean(); 
                     }); 
-                }
+                };
+
                 function remove(index) { /// *** show modal *** ///
                     scope.modalBody = "¿Eliminar este evento?";
                     scope.modalTitle = "Eliminar evento.";
                     modal(index, 'delete');
-                }
+                };
+
                 function deleteEvent(id){ /// *** elimina un evento *** ///
                     var indexConfig = findIndexByKeyValue(scope.config, "id", id);
                     scope.config.splice(indexConfig,1);
                     clean();
                     scope.upbar=false;
-                }
+                };
+
                 function dropEditEvent(id){
                     var indexConfig = findIndexByKeyValue(scope.config, "id",id);
                     scope.config[indexConfig].start=scope.newDate;
                     scope.config[indexConfig].color=col;
                     scope.config[indexConfig].estado=0;
-                }
+                };
+
                 function clean(){ /// *** limpia el formulario de eventos *** ///
                     scope.hora=moment().format('HH:mm');
                     scope.lugar = "" ;  
@@ -146,22 +186,15 @@
                     scope.notificar = false ;  
                     scope.upbar=false;
                     eventClick=false; 
-                }
-                function onDayClick(dates, allDay, jsEvent){ /// *** click en una fecha en el calendario *** ///
-                    var clickDay=dates.format();
-                    var now=moment(new Date(Date.now())).format('YYYY-MM-DD');
-                    var diff=moment(clickDay).diff(now, 'days');
-                    if (diff>=0){//solo puede ingresar eventos antes de la fecha de hoy
-                        scope.fecha=dates.format();
-                        fechaClick=scope.fecha;
-                    }
                 };
+
                 function alertOnDrop(event, delta, revertFunc, jsEvent, ui, view){
                     scope.newDate=moment(event._start._d).format('YYYY-MM-DD HH:mm');
                     scope.modalBody = "Se modificará la fecha del evento, ¿continuar?";
                     scope.modalTitle = "Modificar Evento";
                     modal(event.id,"onDrop");
-                }
+                };
+
                 function findIndexByKeyValue(arraytosearch, key, valuetosearch) { /// *** busca el indice del arreglo de un objeto basado en un id del objeto *** ///
                     var estado =null;
                     for (var i = 0; i < arraytosearch.length; i++) {
@@ -170,7 +203,8 @@
                         }
                     }
                     return estado;
-                }
+                };
+
                 function alertEventOnClick(calEvent, jsEvent, view){ /// *** click en un evento *** ///
                     scope.upbar=true;
                     scope.id=calEvent.id;
@@ -186,8 +220,10 @@
                     scope.obs = calEvent.obs ;  
                     scope.notificar = calEvent.notificacion ;
                 };
+
                 function eventRender( event, element, view ) {
                 };
+
                 function eventMouseover (calEvent, jsEvent, view) { /// *** paso del mouse "entra" en un evento *** ///
                     if (!eventClick){
                         scope.info = false;
@@ -199,6 +235,7 @@
                         scope.notificar = calEvent.notificacion ;               
                     }
                  };
+
                 function eventMouseout (event, jsEvent, view) { /// *** paso del mouse "sale" un evento *** ///
                     if (!eventClick){
                         scope.info = true;

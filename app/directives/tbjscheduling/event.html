@@ -1,0 +1,125 @@
+<div>	
+	<div class="modal-header">
+		 <button type="button" ng-click="event.close()" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+	    <h3 class="modal-title">Nueva cita - {{event.data.date}}</h3>
+	</div>
+	<div class="modal-body">
+		<div class="container-fluid">
+			<h4>Entrevista para el Cargo</h4>
+			<h4><strong>El cargo en negrita</strong></h4>
+			<form  class="form-horizontal" role="form">
+				<!-- <div class="form-group">
+				    <label for="" class="col-sm-4 control-label">Fecha:</label>
+				    <label  for="" class="col-sm-8 control-label">{{fecha}}</label>
+				</div> -->
+				<!-- <div class="form-group" ng-hide="info">
+				    <label for="" class="col-sm-4 control-label">Nombre:</label>
+				    <label ng-hide="info" for="" class="col-sm-8 control-label">Sebastian</label>
+				</div> -->
+				<!-- <div class="form-group" ng-hide="info">
+				    <label for="" class="col-sm-4 control-label">Email:</label>
+				    <label ng-hide="info" for="" class="col-sm-8 control-label">Sebastian@tbj.cl</label>
+				</div>  --> 
+				<div class="form-group" ng-show="info">
+				    <!-- <label for="" class="col-sm-4 control-label">Hora:</label> -->
+				    <div class="col-xs-3">
+				      <input type="input" ng-model="hora" class="form-control" id="" >
+				    </div>
+				    <div class="col-xs-3">
+				      <input type="input" ng-model="hora2" class="form-control" id="" >
+				    </div>
+				</div>
+				
+				<div class="form-group">
+				    <div class="row-fluid">
+					    <div class="col-xs-6">
+					      <label for="" class="control-label">Entrevistador</label>
+					      <input type="text" ng-model="entrevistador" class="form-control" id="">
+					    </div>
+					    <div class="col-xs-6">
+					      <label for="" class="control-label">Email</label>
+					      <input type="email" ng-model="entrevistador2" class="form-control" id="">
+					    </div>
+					</div>
+				</div>
+
+				<div class="form-group">
+				    <div class="checkbox">
+					    <label>
+					      <input type="checkbox"> Yo soy el entrevistador
+					    </label>
+					</div>
+
+					<div class="checkbox">
+					    <label>
+					      <input type="checkbox"> Enviar correo de respaldo al entrevistador
+					    </label>
+					</div>
+				</div>
+
+				<hr>
+
+				<div class="form-group">
+				    <label for="" class="control-label">Quienes asisten</label>
+				    <p></p>
+				    <p>Jorge Vergara <a href="">Ver curriculum</a></p>
+				    <p>Tatiana Lobos <a href="">Ver curriculum</a></p>
+				</div>
+				<hr>
+				<div class="form-group">
+				    <label for="" class="col-xs-3 control-label">Lugar</label>
+				    <div class="col-xs-9">
+				      <input type="text" ng-model="lugar" class="form-control" id="">
+				    </div>
+				</div>
+				<div class="form-group">
+				    <label for="" class="col-xs-3 control-label">Comentario para el candidato (opcional)</label>
+				    <div class="col-xs-9">
+				      <textarea rows="3" cols="50" class="form-control">
+				      </textarea>
+				    </div>
+				</div>
+				<div class="form-group">
+				    <label for="" class="col-xs-3 control-label">Comentario para uso interno (opcional)</label>
+				    <div class="col-xs-9">
+				      <textarea rows="3" cols="50" class="form-control">
+				      </textarea>
+				    </div>
+				</div>
+
+				<!-- <div class="form-group" ng-hide="info">
+				    <label for="" class="col-sm-4 control-label">Telefono:</label>
+				    <label ng-hide="info" for="" class="col-sm-8 control-label">99999999</label>
+				</div>
+				
+				<div class="form-group">
+				    <label for="" class="col-sm-4 control-label">Cargo:</label>
+				    <label ng-hide="info" for="" class="col-sm-8 control-label">{{cargo}}</label>
+				    <div class="col-sm-8" ng-show="info">
+				      <input type="text" ng-model="cargo" class="form-control" id="">
+				    </div>
+				</div>
+				<div class="form-group">
+				    <label for="" class="col-sm-4 control-label">Observación:</label>
+				    <label ng-hide="info" for="" class="col-sm-8 control-label" >{{obs}}</label>
+				    <div class="col-sm-8" ng-show="info">
+				      <textarea   class="form-control" ng-model="obs" id=""/></textarea>
+				    </div>
+				</div>
+				<div class="checkbox" ng-show="info">
+				  	<label>
+				    	<input type="checkbox" value="" ng-model="notificar">
+				    	Notificar por Email al Candidato (la observación no se mostrará al entrevistado)
+				  	</label>
+				</div> -->
+			</form>
+		</div>
+	
+	<div class="modal-footer">
+		<!-- <div class="col-xs-8"> -->
+			<button  type="button" class="btn btn-primary">Agendar</button>	
+			<!-- <button  type="button" class="btn btn-primary" ng-click="addEditEvent(id)">Agendar</button> -->
+			<button  type="button" class="btn btn-default" ng-click="event.close()">Cancelar</button>	
+		<!-- </div> -->
+	</div>
+</div>

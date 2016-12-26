@@ -20,7 +20,7 @@
 
         ///////////////
         function get(cb){
-            var req = $http.get('http://localhost:3000/app/config/config.json');
+            var req = $http.get('http://192.168.1.10:3000/app/config/config.json');
             req.then(function(data){
                 if (data.statusText =="OK"){
                     var col = changeColor(data.data)
