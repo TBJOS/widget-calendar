@@ -15,17 +15,22 @@
         var vm = this;
         vm.close = close;
         vm.data = event;
-       /* 
-        $scope.eventId = eventId;
-        $scope.okEvent = okEvent;*/
+        vm.create = create;
+        vm.removeEvent = removeEvent;
+        var today = moment();
+        vm.diff = event.start.diff(today, 'days') >= 0;
+      
        ///////////////////////
        function close(){
        		$uibModalInstance.dismiss('cancel');
        }
-       function okEvent(item,type){
-    		$uibModalInstance.close(item);
+
+       function removeEvent() {
+          $uibModalInstance.close(vm.data, true);
        }
 
-
+       function create(){
+    	    $uibModalInstance.close(vm.data);
+       }
     }
 })();

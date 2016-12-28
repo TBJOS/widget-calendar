@@ -7,13 +7,18 @@
   <meta name="author" content="sesparza">
   <meta name="viewport" content="initial-scale=1.0, user-scalable=0, width=device-width, height=device-height">
   <!-- PLUGIN SELECT -->
-  <link href="build/css/widget-calendar.css" rel="stylesheet">
+  
   <link href="bower_components/angular-bootstrap/ui-bootstrap-csp.css" rel="stylesheet">
   <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />
+
+  <link href="build/css/widget-calendar.css" rel="stylesheet">
+  <link href="bower_components/fullcalendar/dist/fullcalendar.min.css" rel="stylesheet">
+  <!-- <link href="bower_components/fullcalendar/dist/fullcalendar.print.css" rel="stylesheet"> -->
 </head>
 <body id ="ng-app" data-ng-app ng-app="widget-calendar">
-    <div class="container-fluid ">
-        <tbj-scheduling ></tbj-scheduling>
+    <div class="container-fluid" ng-controller="testController as test">
+      <!-- <pre>{{test.config | json}}</pre> -->
+        <tbj-scheduling config="test.config" applicants="test.applicants" offer="test.offer"></tbj-scheduling>
 	</div>
 
 	<!-- LIBRERIAS -->

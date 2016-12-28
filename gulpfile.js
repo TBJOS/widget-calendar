@@ -22,7 +22,7 @@ gulp.task('app', function() {
             gulp.src(files)
                 .pipe(jsValidate()).on('error', errorHandler)
                 .pipe(concat('widget-calendar.js'))
-                .pipe(uglify()).on('error', errorHandler)
+                //.pipe(uglify()).on('error', errorHandler)
                 .pipe(gulp.dest('build/js'))
                 .pipe(notify({
                     title: 'Gulp Form',

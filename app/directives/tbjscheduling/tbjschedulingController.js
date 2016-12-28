@@ -9,60 +9,74 @@
         .module('widget-calendar')
         .directive('tbjScheduling', tbjschedulingDirective);
 
-    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', 'ModalService', '$uibModal'];
-    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, ModalService, $uibModal) {
+    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', 'ModalService', '$uibModal', 'scheduleWidgetService', 'templatesRoute', '$compile', 'messageWidgetService'];
+    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, ModalService, $uibModal, scheduleWidgetService, templatesRoute, $compile, messageWidgetService) {
         return {
             restrict: 'AE',
             template: templateService.get(directivesRoute + 'tbjscheduling/tbjschedulingView.html'),
             replace: true,
-            scope: false,
+            scope: {
+                config: '=',
+                offer: '=',
+                applicants: '='
+            },
             link: function(scope, element, attrs) {
-                var date = new Date();
-                var mi = date.getMinutes();
-                var h = date.getHours();
-                var d = date.getDate();
-                var m = date.getMonth()+1;
-                var y = date.getFullYear();
-                var col = '#31b0d5';
-                var fechaClick="";
-                var eventClick=false;
-                scope.id="";
-                scope.fecha=moment().format('YYYY-MM-DD');
-                scope.hora=moment().format('HH:mm');
-                scope.lugar = "" ;  
-                scope.entrevistador = "" ;  
-                scope.cargo = "" ;  
-                scope.obs = "" ;  
-                scope.notificar = false ;  
-                scope.events = [];
-                scope.info = true;
-                scope.upbar = false;
-                scope.eventSources=[];
-                scope.addEditEvent = addEditEvent;
-                scope.alertOnDrop= alertOnDrop;
-                scope.addEvent = addEvent;
-                scope.remove = remove;
-                scope.modal = modal;
-                scope.clean = clean;
-                scope.onDayClick = onDayClick; 
-                scope.alertEventOnClick = alertEventOnClick;
-                scope.eventRender = eventRender;
-                scope.eventMouseover = eventMouseover;
-                scope.eventMouseout = eventMouseout;
-                scope.okEvent = deleteEvent;
-                scope.config = false;
-                init();
-                /////////////////////////////
-                function onDayClick(dates, allDay, jsEvent){ /// *** click en una fecha en el calendario *** ///
-                    var clickDay=dates.format();
-                    console.log('clickDay', clickDay);
-                    var event = {
-                        date: clickDay
-                    };
+                //Se inicializa el widget
+                scope.config = scope.config || {};
+                scope.config.services = scope.config.services || {};
 
+                //Heredo servicios del portal padre o utilizo los del widget
+                var SERVICE = {
+                    schedule: scope.config.services.schedule || scheduleWidgetService,
+                    catalog: scope.config.services.catalog || {},
+                    message: scope.config.services.message || messageWidgetService
+                };
+
+                init(scope.offer);
+
+
+
+                /////////////////////////////
+                function init(offer){
+                    SERVICE.schedule.getAppointments(offer.id).then(function(result){
+                        var events = (result && result.data)? result.data : [];
+                        scope.uiConfig = {
+                            calendar:{
+                                monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
+                                    'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                                ],
+                                dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
+                                height: 450,
+                                editable: true,
+                                timezone: "local",
+                                header:{
+                                  left: 'today',
+                                  center: 'title',
+                                  right: 'prev,next'
+                                },
+                                defaultView: 'month',
+                                selectable: true,
+                                selectHelper: true,
+                                events : events,
+                                dayClick: onDayClick,
+                                eventClick: alertEventOnClick,
+                                //eventDrop: alertOnDrop,
+                                //eventResize: alertOnResize,
+                                //eventMouseover:eventMouseover,
+                                //eventMouseout:eventMouseout,
+                                eventRender: eventRender
+                            }
+                        };
+                    }, function(err){
+                        console.log('ERR', err);
+                    });
+                }
+
+                //EDITAR EVENTO
+                function alertEventOnClick(event, jsEvent, view){
                     var modalInstance = $uibModal.open({
                       animation: true,
-                      templateUrl: directivesRoute + 'tbjscheduling/event.html',
+                      templateUrl: templatesRoute + 'event.html',
                       controller: 'eventController',
                       controllerAs: 'event',
                       scope: scope,
@@ -73,16 +87,61 @@
                         }
                       }
                     });
-                    modalInstance.result.then(function (id) {//entra cuando se le da ok al modal
-                        scope.okEvent(id);
-                        clean(); 
+
+                    modalInstance.result.then(function(event, remove){
+                        if (!remove) {
+                            SERVICE.schedule.edit(event.data).then(function(result){
+                                SERVICE.message.show('success', 'Evento editado con éxito');
+                            }, function(err){
+                                SERVICE.message.show('error', 'Problemas al editar');
+                            });
+                        } else {
+                            SERVICE.schedule.remove(event.data).then(function(result){
+                                SERVICE.message.show('success', 'Evento eliminado con éxito');
+                            }, function(err){
+                                SERVICE.message.show('error', 'Problemas al eliminar');
+                            });
+                        }
                     }); 
-                    /*var now=moment(new Date(Date.now())).format('YYYY-MM-DD');
-                    var diff=moment(clickDay).diff(now, 'days');
-                    if (diff>=0){//solo puede ingresar eventos antes de la fecha de hoy
-                        scope.fecha=dates.format();
-                        fechaClick=scope.fecha;
-                    }*/
+                };
+
+                //NUEVO EVENTO
+                function onDayClick(date, allDay, jsEvent){
+                    scope.offer = scope.offer || {};
+                    var today = moment();
+                    var diff = date.diff(today, 'days');
+                    if (diff >= 0) {
+                        var event = {
+                            start: moment(date),
+                            data: {
+                                jobtitle: scope.offer.title || '',
+                                applicants: scope.applicants || []
+                            }
+                        };
+
+                        var modalInstance = $uibModal.open({
+                          animation: true,
+                          templateUrl: templatesRoute + 'event.html',
+                          controller: 'eventController',
+                          controllerAs: 'event',
+                          scope: scope,
+                          size: 'md',
+                          resolve: {
+                            event: function(){
+                                return event;
+                            }
+                          }
+                        });
+                        modalInstance.result.then(function (event) {
+                            SERVICE.schedule.create(event.data).then(function(result){
+                                SERVICE.message.show('success', 'Evento creado con éxito');
+                            }, function(err){
+                                SERVICE.message.show('error', 'Problemas al crear evento');
+                            });
+                        });   
+                    } else {
+                        //
+                    }
                 };
 
 
@@ -97,8 +156,17 @@
                         } 
                 };
 
+                function eventRender( event, element, view ) { 
+                    console.log('event.title',event.title)
+                    element.attr({
+                        'tooltip': event.title,
+                        'tooltip-append-to-body': true
+                    });
+                    $compile(element)(scope);
+                }
+
                 function addEvent () {
-                    scope.config.push({
+                    /*scope.config.push({
                         title: 'Sujeto A',
                         start:scope.fecha+" "+scope.hora,// scope.fecha.toJSON(),
                         color:col,
@@ -109,10 +177,10 @@
                         obs:scope.obs,
                         notificacion:scope.notificar,
                         estado:0//0=en espera, 1=aprobado
-                    });    
+                    }); */   
                 };
 
-                function editEvent(index){
+                /*function editEvent(index){
                     var indexConfig = findIndexByKeyValue(scope.config, "id", index);
                     scope.config[indexConfig].start=scope.fecha+" "+scope.hora;
                     scope.config[indexConfig].color=col;
@@ -141,7 +209,7 @@
 
                     var modalInstance = $uibModal.open({
                       animation: true,
-                      templateUrl: directivesRoute + 'tbjscheduling/event.html',
+                      templateUrl: templatesRoute + 'event.html',
                       controller: 'EventController',
                       scope: scope,
                       size: 'lg',
@@ -155,15 +223,15 @@
                         scope.okEvent(id);
                         clean(); 
                     }); 
-                };
+                };*/
 
-                function remove(index) { /// *** show modal *** ///
+                /*function remove(index) {
                     scope.modalBody = "¿Eliminar este evento?";
                     scope.modalTitle = "Eliminar evento.";
                     modal(index, 'delete');
                 };
 
-                function deleteEvent(id){ /// *** elimina un evento *** ///
+                function deleteEvent(id){ 
                     var indexConfig = findIndexByKeyValue(scope.config, "id", id);
                     scope.config.splice(indexConfig,1);
                     clean();
@@ -177,7 +245,7 @@
                     scope.config[indexConfig].estado=0;
                 };
 
-                function clean(){ /// *** limpia el formulario de eventos *** ///
+                function clean(){ 
                     scope.hora=moment().format('HH:mm');
                     scope.lugar = "" ;  
                     scope.entrevistador = "" ;  
@@ -188,14 +256,9 @@
                     eventClick=false; 
                 };
 
-                function alertOnDrop(event, delta, revertFunc, jsEvent, ui, view){
-                    scope.newDate=moment(event._start._d).format('YYYY-MM-DD HH:mm');
-                    scope.modalBody = "Se modificará la fecha del evento, ¿continuar?";
-                    scope.modalTitle = "Modificar Evento";
-                    modal(event.id,"onDrop");
-                };
+                
 
-                function findIndexByKeyValue(arraytosearch, key, valuetosearch) { /// *** busca el indice del arreglo de un objeto basado en un id del objeto *** ///
+                function findIndexByKeyValue(arraytosearch, key, valuetosearch) { 
                     var estado =null;
                     for (var i = 0; i < arraytosearch.length; i++) {
                         if (arraytosearch[i][key] == valuetosearch) {
@@ -205,27 +268,17 @@
                     return estado;
                 };
 
-                function alertEventOnClick(calEvent, jsEvent, view){ /// *** click en un evento *** ///
-                    scope.upbar=true;
-                    scope.id=calEvent.id;
-                    eventClick=true;
-                    scope.info = true;
-                    var aux=calEvent.start._i;
-                    var fulldate=aux.split(" ");
-                    scope.fecha  = fulldate[0];
-                    scope.hora  = fulldate[1]
-                    scope.lugar = calEvent.lugar ;  
-                    scope.entrevistador = calEvent.entrevistador ;  
-                    scope.cargo = calEvent.cargo ;  
-                    scope.obs = calEvent.obs ;  
-                    scope.notificar = calEvent.notificacion ;
+                function alertOnDrop(event, delta, revertFunc, jsEvent, ui, view){
+                    scope.newDate=moment(event._start._d).format('YYYY-MM-DD HH:mm');
+                    scope.modalBody = "Se modificará la fecha del evento, ¿continuar?";
+                    scope.modalTitle = "Modificar Evento";
+                    modal(event.id,"onDrop");
                 };
+                */
 
-                function eventRender( event, element, view ) {
-                };
-
-                function eventMouseover (calEvent, jsEvent, view) { /// *** paso del mouse "entra" en un evento *** ///
-                    if (!eventClick){
+                function eventMouseover (event, jsEvent, view) { /// *** paso del mouse "entra" en un evento *** ///
+                    console.log('eventMouseover', event);
+                    /*if (!eventClick){
                         scope.info = false;
                         scope.fecha  = calEvent._start._i;
                         scope.lugar = calEvent.lugar ;  
@@ -233,11 +286,12 @@
                         scope.cargo = calEvent.cargo ;  
                         scope.obs = calEvent.obs ;  
                         scope.notificar = calEvent.notificacion ;               
-                    }
+                    }*/
                  };
 
                 function eventMouseout (event, jsEvent, view) { /// *** paso del mouse "sale" un evento *** ///
-                    if (!eventClick){
+                    console.log('eventMouseout', event);
+                    /*if (!eventClick){
                         scope.info = true;
                         if (fechaClick==""){
                             scope.fecha  = moment().format('YYYY-MM-DD');
@@ -250,42 +304,9 @@
                         scope.cargo = "" ;  
                         scope.obs = "";  
                         scope.notificar = false ;
-                    }
-                  };  
-                function init(){
-                    configService.get(function(config){  /// *** trae los eventos para cargarlos *** ///
-                        scope.config = config;
-                        if (config.length > 0){
-                            scope.uiConfig = {
-                                calendar:{
-                                    monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
-                                        'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                                    ],
-                                    dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
-                                    height: 450,
-                                    editable: true,
-                                    timezone: "local",
-                                    header:{
-                                      left: 'today',
-                                      center: 'title',
-                                      right: 'prev,next'
-                                    },
-                                    defaultView: 'month',
-                                    selectable: true,
-                                    selectHelper: true,
-                                    events : scope.config, 
-                                    dayClick: scope.onDayClick,
-                                    eventClick: scope.alertEventOnClick,
-                                    eventDrop: scope.alertOnDrop,
-                                    eventResize: scope.alertOnResize,
-                                    eventRender: scope.eventRender,
-                                    eventMouseover:scope.eventMouseover,
-                                    eventMouseout:scope.eventMouseout
-                                }
-                            };
-                        }else{console.log("no data!")} 
-                    });
-                }
+                    }*/
+                };  
+                
             }
         };
     }
