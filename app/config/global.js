@@ -14,4 +14,9 @@
         .value('templatesRoute', 'app/templates/')
         .value('defautLanguage', 'es_cl')
         .value('timeZone', 'America/Santiago')
+        .value('statusColor', {
+            0: 'green',
+            1: '#31b0d5',
+            2: 'red'
+        })
 })();

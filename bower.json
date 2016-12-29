@@ -17,7 +17,7 @@
     "fullcalendar": "~2.6.0",
     "angular-bootstrap": "~1.1.1",
     "bootstrap": "^3.2.0",
-    "moment-timezone": "~0.5.0",
+    "moment-timezone": "^0.5.11",
     "angular-modal-service": "^0.6.9"
   },
   "ignore": [
