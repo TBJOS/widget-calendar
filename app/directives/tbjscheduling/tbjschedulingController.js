@@ -76,7 +76,7 @@
                 function eventOnClick(event, jsEvent, view){
                     var modalInstance = $uibModal.open({
                       animation: true,
-                      templateUrl: templatesRoute + 'event.html',
+                      templateUrl: templateService.get(templatesRoute + 'event.html'),
                       controller: 'eventController',
                       controllerAs: 'event',
                       scope: scope,
@@ -120,7 +120,7 @@
 
                         var modalInstance = $uibModal.open({
                           animation: true,
-                          templateUrl: templatesRoute + 'event.html',
+                          template: templateService.get(templatesRoute + 'event.html'),
                           controller: 'eventController',
                           controllerAs: 'event',
                           scope: scope,
