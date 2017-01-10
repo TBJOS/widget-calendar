@@ -5,7 +5,7 @@
     "sesparza"
   ],
   "description": "",
-  "main": "build/js/widget-calendar",
+  "main": "build/js/widget-calendar.js",
   "moduleType": [],
   "license": "MIT",
   "homepage": "",
