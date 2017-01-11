@@ -9,8 +9,8 @@
         .module('widget-calendar')
         .directive('tbjScheduling', tbjschedulingDirective);
 
-    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', 'ModalService', '$uibModal', 'scheduleWidgetService', 'templatesRoute', '$compile', 'messageWidgetService', 'timeZone'];
-    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, ModalService, $uibModal, scheduleWidgetService, templatesRoute, $compile, messageWidgetService, timeZone) {
+    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', '$uibModal', 'scheduleWidgetService', 'templatesRoute', '$compile', 'messageWidgetService', 'timeZone'];
+    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, $uibModal, scheduleWidgetService, templatesRoute, $compile, messageWidgetService, timeZone) {
         return {
             restrict: 'AE',
             template: templateService.get(directivesRoute + 'tbjscheduling/tbjschedulingView.html'),
@@ -76,7 +76,7 @@
                 function eventOnClick(event, jsEvent, view){
                     var modalInstance = $uibModal.open({
                       animation: true,
-                      templateUrl: templateService.get(templatesRoute + 'event.html'),
+                      template: templateService.get(templatesRoute + 'event.html'),
                       controller: 'eventController',
                       controllerAs: 'event',
                       scope: scope,

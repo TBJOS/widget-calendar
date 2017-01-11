@@ -1,7 +1,7 @@
 {
   "name": "fullcalendar",
   "title": "FullCalendar",
-  "version": "2.7.3",
+  "version": "2.6.1",
   "description": "Full-sized drag & drop event calendar",
   "keywords": [
     "calendar",
@@ -15,13 +15,16 @@
     "type": "git",
     "url": "https://github.com/fullcalendar/fullcalendar.git"
   },
-  "license": "MIT",
+  "license": {
+    "type": "MIT",
+    "url": "https://github.com/fullcalendar/fullcalendar/blob/master/LICENSE.txt"
+  },
   "author": {
     "name": "Adam Shaw",
     "email": "arshaw@arshaw.com",
     "url": "http://arshaw.com/"
   },
-  "copyright": "2016 Adam Shaw",
+  "copyright": "2015 Adam Shaw",
   "dependencies": {
     "jquery": ">=1.7.1",
     "moment": ">=2.5.0"
@@ -29,11 +32,11 @@
   "devDependencies": {
     "jquery-ui": ">=1.11.1",
     "jquery-simulate": "~1.0.1",
+    "jquery-mockjax": "~1.5.4",
     "jasmine-jquery": "~2.0.3",
     "jasmine-fixture": "~1.2.0",
     "moment-timezone": "~0.2.1",
-    "bootstrap": "~3.2.0",
-    "jquery-mockjax": "~2.1.1"
+    "bootstrap": "~3.2.0"
   },
   "main": [
     "dist/fullcalendar.js",
@@ -48,13 +51,13 @@
     "!/CHANGELOG.*",
     "!/CONTRIBUTING.*"
   ],
-  "_release": "2.7.3",
+  "_release": "2.6.1",
   "_resolution": {
     "type": "version",
-    "tag": "v2.7.3",
-    "commit": "87dcd3f73c21d91c296830c7589b77c4fc8f386e"
+    "tag": "v2.6.1",
+    "commit": "f4708da34c7b1207885290389202df6c4a59e4c1"
   },
   "_source": "https://github.com/fullcalendar/fullcalendar.git",
-  "_target": "~2.7.1",
+  "_target": "~2.6.0",
   "_originalSource": "fullcalendar"
 }

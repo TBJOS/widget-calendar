@@ -182,7 +182,7 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
 (function() {
     angular
-            .module('widget-calendar', ['ngRoute','ui.calendar','ui.bootstrap','angularModalService']);
+            .module('widget-calendar', ['ngRoute','ui.calendar','ui.bootstrap']);
 })();
 
 /**
@@ -436,8 +436,8 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
         .module('widget-calendar')
         .directive('tbjScheduling', tbjschedulingDirective);
 
-    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', 'ModalService', '$uibModal', 'scheduleWidgetService', 'templatesRoute', '$compile', 'messageWidgetService', 'timeZone'];
-    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, ModalService, $uibModal, scheduleWidgetService, templatesRoute, $compile, messageWidgetService, timeZone) {
+    tbjschedulingDirective.$inject = ['directivesRoute', 'templateService', 'uiCalendarConfig', 'configService', '$uibModal', 'scheduleWidgetService', 'templatesRoute', '$compile', 'messageWidgetService', 'timeZone'];
+    function tbjschedulingDirective(directivesRoute, templateService, uiCalendarConfig, configService, $uibModal, scheduleWidgetService, templatesRoute, $compile, messageWidgetService, timeZone) {
         return {
             restrict: 'AE',
             template: templateService.get(directivesRoute + 'tbjscheduling/tbjschedulingView.html'),
@@ -503,7 +503,7 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
                 function eventOnClick(event, jsEvent, view){
                     var modalInstance = $uibModal.open({
                       animation: true,
-                      templateUrl: templatesRoute + 'event.html',
+                      template: templateService.get(templatesRoute + 'event.html'),
                       controller: 'eventController',
                       controllerAs: 'event',
                       scope: scope,
@@ -547,7 +547,7 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
                         var modalInstance = $uibModal.open({
                           animation: true,
-                          templateUrl: templatesRoute + 'event.html',
+                          template: templateService.get(templatesRoute + 'event.html'),
                           controller: 'eventController',
                           controllerAs: 'event',
                           scope: scope,
