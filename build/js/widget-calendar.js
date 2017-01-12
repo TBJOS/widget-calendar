@@ -10,38 +10,41 @@ TEMPLATES['app/templates/event.html'] = "<div class=\"newEvent\">\n" +
     "		 	aria-label=\"Close\"><span aria-hidden=\"true\">&times;</span>\n" +
     "		 </button>\n" +
     "	    <h3 class=\"modal-title\">{{(event.data.token && event.diff)? 'Nueva cita' : 'Cita'}} - {{event.data.date | date: 'dd-MM-yyyy'}}</h3>\n" +
-    "	    <button\n" +
-    "	    	ng-if =\"event.data.token && event.diff\"\n" +
-    "	    	type=\"button\"\n" +
-    "	    	class=\"pull-right btn btn-danger\"\n" +
-    "	    	ng-click=\"event.removeEvent()\">Anular Cita\n" +
-    "	    </button>\n" +
     "	</div>\n" +
     "\n" +
     "	<div class=\"modal-body\">\n" +
     "		<div class=\"container-fluid\">\n" +
+    "			<!-- <button\n" +
+    "		    	ng-if =\"event.data.token && event.diff\"\n" +
+    "		    	type=\"button\"\n" +
+    "		    	class=\"pull-right btn btn-danger\"\n" +
+    "		    	ng-click=\"event.removeEvent()\">Anular Cita\n" +
+    "		    </button> -->\n" +
     "			<h4>Entrevista para el Cargo</h4>\n" +
     "			<h4><strong>{{event.data.jobtitle}}</strong></h4>\n" +
-    "			<form  class=\"form-horizontal\" role=\"form\">\n" +
+    "			\n" +
+    "			<form name=\"eventform\" class=\"form-horizontal\" role=\"form\" ng-validate>\n" +
     "				<div class=\"form-group\" ng-if=\"event.diff\">\n" +
     "					<div class=\"col-xs-4\">\n" +
-    "						<label for=\"\" class=\"control-label\">Hora inicio</label>\n" +
+    "						<label for=\"\" class=\"control-label\">Hora inicio <span class=\"text-danger\">(*)</span></label>\n" +
     "						<div\n" +
     "							uib-timepicker\n" +
     "							ng-model=\"event.data.start\"\n" +
     "							hour-step=\"1\"\n" +
     "							minute-step=\"1\"\n" +
-    "							show-meridian=\"false\">\n" +
+    "							show-meridian=\"false\"\n" +
+    "							required>\n" +
     "						</div>\n" +
     "					</div>\n" +
     "					<div class=\"col-xs-4\">\n" +
-    "						<label for=\"\" class=\"control-label\">Hora término</label>\n" +
+    "						<label for=\"\" class=\"control-label\">Hora término <span class=\"text-danger\">(*)</span></label>\n" +
     "						<div\n" +
     "							uib-timepicker\n" +
     "							ng-model=\"event.data.end\"\n" +
     "							hour-step=\"1\"\n" +
     "							minute-step=\"1\"\n" +
-    "							show-meridian=\"false\">\n" +
+    "							show-meridian=\"false\"\n" +
+    "							required>\n" +
     "						</div>\n" +
     "					</div>\n" +
     "				</div>\n" +
@@ -56,22 +59,24 @@ TEMPLATES['app/templates/event.html'] = "<div class=\"newEvent\">\n" +
     "				<div class=\"form-group\">\n" +
     "				    <div class=\"row-fluid\">\n" +
     "					    <div class=\"col-xs-6\">\n" +
-    "					      <label for=\"\" class=\"control-label\">Entrevistador</label>\n" +
+    "					      <label for=\"\" class=\"control-label\">Entrevistador <span class=\"text-danger\">(*)</span></label>\n" +
     "					      <input\n" +
     "						      type=\"text\"\n" +
     "						      ng-model=\"event.data.interviewer\"\n" +
     "						      class=\"form-control\"\n" +
     "						      id=\"\"\n" +
-    "						      ng-disabled=\"!event.diff\">\n" +
+    "						      ng-disabled=\"!event.diff\"\n" +
+    "						      required>\n" +
     "					    </div>\n" +
     "					    <div class=\"col-xs-6\">\n" +
-    "					      <label for=\"\" class=\"control-label\">Email</label>\n" +
+    "					      <label for=\"\" class=\"control-label\">Email <span class=\"text-danger\">(*)</span></label>\n" +
     "					      <input\n" +
     "					      	type=\"email\"\n" +
     "					      	ng-model=\"event.data.interviewerEmail\"\n" +
     "					      	class=\"form-control\"\n" +
     "					      	id=\"\"\n" +
-    "					      	ng-disabled=\"!event.diff\">\n" +
+    "					      	ng-disabled=\"!event.diff\"\n" +
+    "					      	required>\n" +
     "					    </div>\n" +
     "					</div>\n" +
     "				</div>\n" +
@@ -89,19 +94,19 @@ TEMPLATES['app/templates/event.html'] = "<div class=\"newEvent\">\n" +
     "				<div class=\"form-group\">\n" +
     "				    <label for=\"\" class=\"control-label\">Quienes asisten</label>\n" +
     "				    <p></p>\n" +
-    "				    <p>Jorge Vergara <a href=\"\">Ver curriculum</a></p>\n" +
-    "				    <p>Tatiana Lobos <a href=\"\">Ver curriculum</a></p>\n" +
+    "				    <p ng-repeat=\"applicant in event.data.applicants\">{{applicant.firstName}} {{applicant.lastName}} <!-- <a href=\"{{applicant.linkCv}}\">Ver curriculum</a> --></p>\n" +
     "				</div>\n" +
     "				<hr>\n" +
     "				<div class=\"form-group\">\n" +
-    "				    <label for=\"\" class=\"col-xs-3 control-label\">Lugar</label>\n" +
+    "				    <label for=\"\" class=\"col-xs-3 control-label\">Lugar <span class=\"text-danger\">(*)</span></label>\n" +
     "				    <div class=\"col-xs-9\">\n" +
     "				      <input\n" +
     "				      	type=\"text\"\n" +
     "				      	ng-model=\"event.data.locationInterview\"\n" +
     "				      	class=\"form-control\"\n" +
     "				      	id=\"\"\n" +
-    "				      	ng-disabled=\"!event.diff\">\n" +
+    "				      	ng-disabled=\"!event.diff\"\n" +
+    "				      	required>\n" +
     "				    </div>\n" +
     "				</div>\n" +
     "				<div class=\"form-group\">\n" +
@@ -116,7 +121,7 @@ TEMPLATES['app/templates/event.html'] = "<div class=\"newEvent\">\n" +
     "				      </textarea>\n" +
     "				    </div>\n" +
     "				</div>\n" +
-    "				<div class=\"form-group\">\n" +
+    "				<!-- <div class=\"form-group\">\n" +
     "				    <label for=\"\" class=\"col-xs-3 control-label\">Comentario para uso interno (opcional)</label>\n" +
     "				    <div class=\"col-xs-9\">\n" +
     "				      <textarea\n" +
@@ -127,7 +132,8 @@ TEMPLATES['app/templates/event.html'] = "<div class=\"newEvent\">\n" +
     "				      	ng-disabled=\"!event.diff\">\n" +
     "				      </textarea>\n" +
     "				    </div>\n" +
-    "				</div>\n" +
+    "				</div> -->\n" +
+    "				<p class=\"text-danger\" ng-if=\"event.showError\">Debe completar todos los campos requeridos (*)</p>\n" +
     "			</form>\n" +
     "		</div>\n" +
     "	\n" +
@@ -148,10 +154,14 @@ TEMPLATES['app/templates/event.html'] = "<div class=\"newEvent\">\n" +
     ""; 
 if(typeof TEMPLATES === 'undefined') {var TEMPLATES = {};}
 TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\"container-fluid\">\n" +
-    " 	<div class=\"row-fluid\">\n" +
-    "		<div class=\"col-xs-offset-1 col-xs-10\">\n" +
+    "	<div class=\"row-fluid\" ng-if=\"!uiConfig.loaded\">\n" +
+    "		<div class=\"col-xs-12\">\n" +
+    "			<p class=\"alert alert-info\"><i class=\"fa fa-spinner fa-spin\"></i> Cargando datos...</p>\n" +
+    "		</div>\n" +
+    "	</div>\n" +
+    " 	<div class=\"row-fluid\" ng-if=\"uiConfig.loaded\">\n" +
+    "		<div class=\"col-xs-12\">\n" +
     "			<div\n" +
-    "				ng-if=\"uiConfig\"\n" +
     "				calendar=\"myCalendar\"\n" +
     "				ui-calendar=\"uiConfig.calendar\"\n" +
     "				ng-model=\"eventSources\" >\n" +
@@ -280,7 +290,8 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
         vm.save = save;
         vm.remove = remove;      
         vm.close = close;
-        
+        vm.showError = false;
+
         var today = moment();
         //event.start = moment(event.start).add(1, 'days')
         console.log('event.start', event.start)
@@ -310,22 +321,25 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
         }
 
         function save() {
-            var saveE = event._saveMethod || saveEvent;
-            var data = angular.copy(vm.data);
+            console.log('eventform', $scope.eventform)
+            if ($scope.eventform.$valid) {
+                var saveE = event._saveMethod || saveEvent;
+                var data = angular.copy(vm.data);
+                data.applicants = parseIds(data.applicants);
+                
+                data.hour = moment(data.start).format('HH[:]mm');
+                data.hour2 = moment(data.end).format('HH[:]mm');
 
-            data.applicants = parseIds(data.applicants);
-            data.start.hour = (data.start.hour < 10)? '0' + data.start.hour : data.start.hour;
-            data.end.hour = (data.end.hour < 10)? '0' + data.end.hour : data.end.hour;
-            data.hour = data.start.hour + ':' + data.start.minutes;
-            data.hour2 = data.end.hour + ':' + data.end.minutes;
+                delete data['start'];
+                delete data['end'];
 
-            delete data['start'];
-            delete data['end'];
-
-            saveE(data).then(function(result){
-                console.log('Datos guardados', result);
-                $uibModalInstance.close(result);
-            }, onError);
+                saveE(data).then(function(result){
+                    $uibModalInstance.close(result.success);
+                }, onError);
+            } else {
+                vm.showError = true;
+            }
+            
         }
 
         function remove() {
@@ -333,7 +347,7 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
             removeE(event.token).then(function(result){
                 console.log('Eliminado', event.token);
-                $uibModalInstance.close(result);
+                $uibModalInstance.close(result.success);
             }, onError);
         }
 
@@ -465,37 +479,43 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
                 /////////////////////////////
                 function init(offer){
+
+                    var config = {
+                        calendar:{
+                            monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
+                                'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                            ],
+                            dayNamesShort : ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                            height: 450,
+                            editable: true,
+                            timezone: timeZone,
+                            header:{
+                              left: 'today',
+                              center: 'title',
+                              right: 'prev,next'
+                            },
+                            defaultView: 'month',
+                            selectable: false,
+                            selectHelper: true,
+                            events : [],
+                            dayClick: onDayClick,
+                            eventClick: eventOnClick,
+                            //eventDrop: alertOnDrop,
+                            //eventResize: alertOnResize,
+                            eventMouseover:eventMouseover,
+                            //eventMouseout:eventMouseout,
+                            eventRender: eventRender
+                        },
+                        loaded: true //Flag de uso interno para cargar el calendar
+                    };
+
                     SERVICE.schedule.getAppointments(offer.id).then(function(appointments){
                         var events = appointments || [];
-                        scope.uiConfig = {
-                            calendar:{
-                                monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
-                                    'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                                ],
-                                dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
-                                height: 450,
-                                editable: true,
-                                timezone: timeZone,
-                                header:{
-                                  left: 'today',
-                                  center: 'title',
-                                  right: 'prev,next'
-                                },
-                                defaultView: 'month',
-                                selectable: false,
-                                selectHelper: true,
-                                events : events,
-                                dayClick: onDayClick,
-                                eventClick: eventOnClick,
-                                //eventDrop: alertOnDrop,
-                                //eventResize: alertOnResize,
-                                eventMouseover:eventMouseover,
-                                //eventMouseout:eventMouseout,
-                                eventRender: eventRender
-                            }
-                        };
+                        config.calendar.events = events;
+                        scope.uiConfig = config;
                     }, function(err){
                         console.log('ERR', err);
+                        scope.uiConfig = config;
                     });
                 }
 
@@ -523,6 +543,8 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
                 //NUEVO EVENTO
                 function onDayClick(date, allDay, jsEvent){
+                    //var applicants = SERVICE.schedule.getFromAppointment() || [];
+                    scope.applicants = scope.applicants || [];
                     date = moment(date).add(1, 'days').set({
                         hour: 0,
                         minute: 0
@@ -534,17 +556,17 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
                     });
 
                     var diff = date.diff(today, 'hours');
-                    if (diff >= 0) {
+                    if (diff >= 0 && scope.applicants.length > 0) {
                         var event = {
                             id: 0,
                             start: moment(date),
                             title: scope.offer.title || '',
-                            applicants: scope.applicants || [],
+                            applicants: scope.applicants,
                             _saveMethod: SERVICE.schedule.create,
                             _getMethod: null,
                             _removeMethod: null
                         };
-
+                        
                         var modalInstance = $uibModal.open({
                           animation: true,
                           template: templateService.get(templatesRoute + 'event.html'),
@@ -558,7 +580,9 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
                             }
                           }
                         });
+
                         modalInstance.result.then(function (result) {
+                            if (result) scope.applicants = [];
                             //Actualizar todos los eventos
                             init(scope.offer);
                         });   
@@ -574,14 +598,14 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
                 function eventRender( event, element, view ) {
                     element.attr({
                         'tooltip': event.title,
-                        'tooltip-append-to-body': true,
+                        'tooltip-append-to-body': true,//false, //Corregir bug - queda pegado en algun lugar de la pantalla
                         'uib-tooltip-template': "'tooltipTemplate.html'"
                     });
                     $compile(element)(scope);
                 }
                 
 
-                function eventMouseout (event, jsEvent, view) { /// *** paso del mouse "sale" un evento *** ///
+                function eventMouseout (event, jsEvent, view) { /// *** paso del mouse 'sale' un evento *** ///
                     //console.log('eventMouseout', event);
                 };  
                 

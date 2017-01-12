@@ -38,37 +38,43 @@
 
                 /////////////////////////////
                 function init(offer){
+
+                    var config = {
+                        calendar:{
+                            monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
+                                'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
+                            ],
+                            dayNamesShort : ['Dom', 'Lun', 'Mar', 'Mie', 'Jue', 'Vie', 'Sab'],
+                            height: 450,
+                            editable: true,
+                            timezone: timeZone,
+                            header:{
+                              left: 'today',
+                              center: 'title',
+                              right: 'prev,next'
+                            },
+                            defaultView: 'month',
+                            selectable: false,
+                            selectHelper: true,
+                            events : [],
+                            dayClick: onDayClick,
+                            eventClick: eventOnClick,
+                            //eventDrop: alertOnDrop,
+                            //eventResize: alertOnResize,
+                            eventMouseover:eventMouseover,
+                            //eventMouseout:eventMouseout,
+                            eventRender: eventRender
+                        },
+                        loaded: true //Flag de uso interno para cargar el calendar
+                    };
+
                     SERVICE.schedule.getAppointments(offer.id).then(function(appointments){
                         var events = appointments || [];
-                        scope.uiConfig = {
-                            calendar:{
-                                monthNames:['Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio', 'Julio',
-                                    'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
-                                ],
-                                dayNamesShort : ["Dom", "Lun", "Mar", "Mie", "Jue", "Vie", "Sab"],
-                                height: 450,
-                                editable: true,
-                                timezone: timeZone,
-                                header:{
-                                  left: 'today',
-                                  center: 'title',
-                                  right: 'prev,next'
-                                },
-                                defaultView: 'month',
-                                selectable: false,
-                                selectHelper: true,
-                                events : events,
-                                dayClick: onDayClick,
-                                eventClick: eventOnClick,
-                                //eventDrop: alertOnDrop,
-                                //eventResize: alertOnResize,
-                                eventMouseover:eventMouseover,
-                                //eventMouseout:eventMouseout,
-                                eventRender: eventRender
-                            }
-                        };
+                        config.calendar.events = events;
+                        scope.uiConfig = config;
                     }, function(err){
                         console.log('ERR', err);
+                        scope.uiConfig = config;
                     });
                 }
 
@@ -96,6 +102,8 @@
 
                 //NUEVO EVENTO
                 function onDayClick(date, allDay, jsEvent){
+                    //var applicants = SERVICE.schedule.getFromAppointment() || [];
+                    scope.applicants = scope.applicants || [];
                     date = moment(date).add(1, 'days').set({
                         hour: 0,
                         minute: 0
@@ -107,17 +115,17 @@
                     });
 
                     var diff = date.diff(today, 'hours');
-                    if (diff >= 0) {
+                    if (diff >= 0 && scope.applicants.length > 0) {
                         var event = {
                             id: 0,
                             start: moment(date),
                             title: scope.offer.title || '',
-                            applicants: scope.applicants || [],
+                            applicants: scope.applicants,
                             _saveMethod: SERVICE.schedule.create,
                             _getMethod: null,
                             _removeMethod: null
                         };
-
+                        
                         var modalInstance = $uibModal.open({
                           animation: true,
                           template: templateService.get(templatesRoute + 'event.html'),
@@ -131,7 +139,9 @@
                             }
                           }
                         });
+
                         modalInstance.result.then(function (result) {
+                            if (result) scope.applicants = [];
                             //Actualizar todos los eventos
                             init(scope.offer);
                         });   
@@ -147,14 +157,14 @@
                 function eventRender( event, element, view ) {
                     element.attr({
                         'tooltip': event.title,
-                        'tooltip-append-to-body': true,
+                        'tooltip-append-to-body': true,//false, //Corregir bug - queda pegado en algun lugar de la pantalla
                         'uib-tooltip-template': "'tooltipTemplate.html'"
                     });
                     $compile(element)(scope);
                 }
                 
 
-                function eventMouseout (event, jsEvent, view) { /// *** paso del mouse "sale" un evento *** ///
+                function eventMouseout (event, jsEvent, view) { /// *** paso del mouse 'sale' un evento *** ///
                     //console.log('eventMouseout', event);
                 };  
                 

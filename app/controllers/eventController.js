@@ -17,7 +17,8 @@
         vm.save = save;
         vm.remove = remove;      
         vm.close = close;
-        
+        vm.showError = false;
+
         var today = moment();
         //event.start = moment(event.start).add(1, 'days')
         console.log('event.start', event.start)
@@ -47,22 +48,25 @@
         }
 
         function save() {
-            var saveE = event._saveMethod || saveEvent;
-            var data = angular.copy(vm.data);
+            console.log('eventform', $scope.eventform)
+            if ($scope.eventform.$valid) {
+                var saveE = event._saveMethod || saveEvent;
+                var data = angular.copy(vm.data);
+                data.applicants = parseIds(data.applicants);
+                
+                data.hour = moment(data.start).format('HH[:]mm');
+                data.hour2 = moment(data.end).format('HH[:]mm');
 
-            data.applicants = parseIds(data.applicants);
-            data.start.hour = (data.start.hour < 10)? '0' + data.start.hour : data.start.hour;
-            data.end.hour = (data.end.hour < 10)? '0' + data.end.hour : data.end.hour;
-            data.hour = data.start.hour + ':' + data.start.minutes;
-            data.hour2 = data.end.hour + ':' + data.end.minutes;
+                delete data['start'];
+                delete data['end'];
 
-            delete data['start'];
-            delete data['end'];
-
-            saveE(data).then(function(result){
-                console.log('Datos guardados', result);
-                $uibModalInstance.close(result);
-            }, onError);
+                saveE(data).then(function(result){
+                    $uibModalInstance.close(result.success);
+                }, onError);
+            } else {
+                vm.showError = true;
+            }
+            
         }
 
         function remove() {
@@ -70,7 +74,7 @@
 
             removeE(event.token).then(function(result){
                 console.log('Eliminado', event.token);
-                $uibModalInstance.close(result);
+                $uibModalInstance.close(result.success);
             }, onError);
         }
 
