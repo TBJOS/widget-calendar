@@ -80,6 +80,12 @@
 
                 //EDITAR EVENTO
                 function eventOnClick(event, jsEvent, view){
+                    console.log('event', event)
+                    event.jobId = scope.offer.id;
+                    event.title = scope.offer.description.jobTitle || '';
+                    event._saveMethod = SERVICE.schedule.edit;
+                    event._getMethod = SERVICE.schedule.get;
+                    event._removeMethod = null;
                     var modalInstance = $uibModal.open({
                       animation: true,
                       template: templateService.get(templatesRoute + 'event.html'),
@@ -101,25 +107,26 @@
                 };
 
                 //NUEVO EVENTO
-                function onDayClick(date, allDay, jsEvent){
-                    //var applicants = SERVICE.schedule.getFromAppointment() || [];
+                function onDayClick(clickedDate, allDay, jsEvent){
+                    console.log('offer', scope.offer);
+                    var date = new Date(clickedDate);
                     scope.applicants = scope.applicants || [];
-                    date = moment(date).add(1, 'days').set({
-                        hour: 0,
-                        minute: 0
-                    });
+                    var date = moment(date).add(1, 'days')
+                    date.hour(0);
+                    date.minute(0);
 
                     scope.offer = scope.offer || {};
-                    var today = moment().set({
-                        hour:0, minute: 0
-                    });
+                    var today = moment();
+                    today.hour = 0;
+                    today.minute = 0;
 
                     var diff = date.diff(today, 'hours');
                     if (diff >= 0 && scope.applicants.length > 0) {
                         var event = {
-                            id: 0,
+                            _id: 0,
+                            jobId: scope.offer.id,
                             start: moment(date),
-                            title: scope.offer.title || '',
+                            title: scope.offer.description.jobTitle || '',
                             applicants: scope.applicants,
                             _saveMethod: SERVICE.schedule.create,
                             _getMethod: null,

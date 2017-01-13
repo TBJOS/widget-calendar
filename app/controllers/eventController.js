@@ -13,39 +13,46 @@
 
     function eventController($scope, $uibModalInstance, event, $q) {
         var vm = this;
+        var today = moment();
         //Manejo del modal
         vm.save = save;
         vm.remove = remove;      
         vm.close = close;
         vm.showError = false;
 
-        var today = moment();
-        //event.start = moment(event.start).add(1, 'days')
-        console.log('event.start', event.start)
         vm.diff = event.start.diff(today, 'days') >= 0;
-        console.log('vm.diff', vm.diff)
-
         
         init();
         ///////////////////////
         function init() {
             var getE = event._getMethod || getEvent;
 
-            getE(event.id).then(function(data){
-                vm.data = data;
-
-                vm.data.date = moment(data.date).toDate();
-
-                var hour = data.hour.split(':')[0];
-                var minutes = data.hour.split(':')[1];
-                vm.data.start = moment().hour(hour).minutes(minutes);
-
-                hour = data.hour2.split(':')[0];
-                minutes = data.hour2.split(':')[1];
-                vm.data.end = moment().hour(hour).minutes(minutes);
-
-            }, onError);
+            if (event.id != 0) {
+                getE(event._id).then(function(data){
+                    console.log('DATA!', data)
+                    vm.data = data;
+                    vm.data.jobId = event.jobId;
+                    vm.data.date = moment(data.date).toDate();
+                    //Hora inicio
+                    var hour = data.hour.split(':')[0];
+                    var minutes = data.hour.split(':')[1];
+                    vm.data.start = moment().hour(hour).minutes(minutes);
+                    //Hora fin
+                    hour = data.hour2.split(':')[0];
+                    minutes = data.hour2.split(':')[1];
+                    vm.data.end = moment().hour(hour).minutes(minutes);
+                }, onError);
+            } else {
+                vm.data = {};
+                vm.data.jobId = event.jobId;
+                vm.data.jobtitle = event.title;
+                vm.data.applicants = event.applicants;
+                vm.data.date = event.start.toDate();
+                vm.data.start = moment();
+                vm.data.end = moment().add(1, 'hour');
+            }  
         }
+            
 
         function save() {
             console.log('eventform', $scope.eventform)

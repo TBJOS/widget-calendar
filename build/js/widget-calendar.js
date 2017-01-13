@@ -219,29 +219,6 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 })();
 
 /**
-*  Constantes Globales <sesparza>
-*/
-
-(function() {
-    'use strict';
-
-    angular
-        .module('widget-calendar')
-        .value('configRoute', 'app/config/')
-        .value('filtersRoute', 'app/filters/')
-        .value('catalogsRoute', 'app/catalogs/')
-        .value('directivesRoute', 'app/directives/')
-        .value('templatesRoute', 'app/templates/')
-        .value('defautLanguage', 'es_cl')
-        .value('timeZone', 'America/Santiago')
-        .value('statusColor', {
-            0: 'green',
-            1: '#31b0d5',
-            2: 'red'
-        })
-})();
-
-/**
  *  calendar <sesparza>
  */
 
@@ -286,39 +263,46 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
     function eventController($scope, $uibModalInstance, event, $q) {
         var vm = this;
+        var today = moment();
         //Manejo del modal
         vm.save = save;
         vm.remove = remove;      
         vm.close = close;
         vm.showError = false;
 
-        var today = moment();
-        //event.start = moment(event.start).add(1, 'days')
-        console.log('event.start', event.start)
         vm.diff = event.start.diff(today, 'days') >= 0;
-        console.log('vm.diff', vm.diff)
-
         
         init();
         ///////////////////////
         function init() {
             var getE = event._getMethod || getEvent;
 
-            getE(event.id).then(function(data){
-                vm.data = data;
-
-                vm.data.date = moment(data.date).toDate();
-
-                var hour = data.hour.split(':')[0];
-                var minutes = data.hour.split(':')[1];
-                vm.data.start = moment().hour(hour).minutes(minutes);
-
-                hour = data.hour2.split(':')[0];
-                minutes = data.hour2.split(':')[1];
-                vm.data.end = moment().hour(hour).minutes(minutes);
-
-            }, onError);
+            if (event.id != 0) {
+                getE(event._id).then(function(data){
+                    console.log('DATA!', data)
+                    vm.data = data;
+                    vm.data.jobId = event.jobId;
+                    vm.data.date = moment(data.date).toDate();
+                    //Hora inicio
+                    var hour = data.hour.split(':')[0];
+                    var minutes = data.hour.split(':')[1];
+                    vm.data.start = moment().hour(hour).minutes(minutes);
+                    //Hora fin
+                    hour = data.hour2.split(':')[0];
+                    minutes = data.hour2.split(':')[1];
+                    vm.data.end = moment().hour(hour).minutes(minutes);
+                }, onError);
+            } else {
+                vm.data = {};
+                vm.data.jobId = event.jobId;
+                vm.data.jobtitle = event.title;
+                vm.data.applicants = event.applicants;
+                vm.data.date = event.start.toDate();
+                vm.data.start = moment();
+                vm.data.end = moment().add(1, 'hour');
+            }  
         }
+            
 
         function save() {
             console.log('eventform', $scope.eventform)
@@ -440,6 +424,29 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 })();
 
 /**
+*  Constantes Globales <sesparza>
+*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('widget-calendar')
+        .value('configRoute', 'app/config/')
+        .value('filtersRoute', 'app/filters/')
+        .value('catalogsRoute', 'app/catalogs/')
+        .value('directivesRoute', 'app/directives/')
+        .value('templatesRoute', 'app/templates/')
+        .value('defautLanguage', 'es_cl')
+        .value('timeZone', 'America/Santiago')
+        .value('statusColor', {
+            0: 'green',
+            1: '#31b0d5',
+            2: 'red'
+        })
+})();
+
+/**
  *  tbjscheduling  <sesparza>
  */
 
@@ -521,6 +528,12 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 
                 //EDITAR EVENTO
                 function eventOnClick(event, jsEvent, view){
+                    console.log('event', event)
+                    event.jobId = scope.offer.id;
+                    event.title = scope.offer.description.jobTitle || '';
+                    event._saveMethod = SERVICE.schedule.edit;
+                    event._getMethod = SERVICE.schedule.get;
+                    event._removeMethod = null;
                     var modalInstance = $uibModal.open({
                       animation: true,
                       template: templateService.get(templatesRoute + 'event.html'),
@@ -542,25 +555,26 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
                 };
 
                 //NUEVO EVENTO
-                function onDayClick(date, allDay, jsEvent){
-                    //var applicants = SERVICE.schedule.getFromAppointment() || [];
+                function onDayClick(clickedDate, allDay, jsEvent){
+                    console.log('offer', scope.offer);
+                    var date = new Date(clickedDate);
                     scope.applicants = scope.applicants || [];
-                    date = moment(date).add(1, 'days').set({
-                        hour: 0,
-                        minute: 0
-                    });
+                    var date = moment(date).add(1, 'days')
+                    date.hour(0);
+                    date.minute(0);
 
                     scope.offer = scope.offer || {};
-                    var today = moment().set({
-                        hour:0, minute: 0
-                    });
+                    var today = moment();
+                    today.hour = 0;
+                    today.minute = 0;
 
                     var diff = date.diff(today, 'hours');
                     if (diff >= 0 && scope.applicants.length > 0) {
                         var event = {
-                            id: 0,
+                            _id: 0,
+                            jobId: scope.offer.id,
                             start: moment(date),
-                            title: scope.offer.title || '',
+                            title: scope.offer.description.jobTitle || '',
                             applicants: scope.applicants,
                             _saveMethod: SERVICE.schedule.create,
                             _getMethod: null,
