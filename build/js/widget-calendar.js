@@ -219,6 +219,29 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 })();
 
 /**
+*  Constantes Globales <sesparza>
+*/
+
+(function() {
+    'use strict';
+
+    angular
+        .module('widget-calendar')
+        .value('configRoute', 'app/config/')
+        .value('filtersRoute', 'app/filters/')
+        .value('catalogsRoute', 'app/catalogs/')
+        .value('directivesRoute', 'app/directives/')
+        .value('templatesRoute', 'app/templates/')
+        .value('defautLanguage', 'es_cl')
+        .value('timeZone', 'America/Santiago')
+        .value('statusColor', {
+            0: 'green',
+            1: '#31b0d5',
+            2: 'red'
+        })
+})();
+
+/**
  *  calendar <sesparza>
  */
 
@@ -424,28 +447,57 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
 })();
 
 /**
-*  Constantes Globales <sesparza>
-*/
+ *  config <sesparza>
+ */
 
 (function() {
     'use strict';
 
     angular
         .module('widget-calendar')
-        .value('configRoute', 'app/config/')
-        .value('filtersRoute', 'app/filters/')
-        .value('catalogsRoute', 'app/catalogs/')
-        .value('directivesRoute', 'app/directives/')
-        .value('templatesRoute', 'app/templates/')
-        .value('defautLanguage', 'es_cl')
-        .value('timeZone', 'America/Santiago')
-        .value('statusColor', {
-            0: 'green',
-            1: '#31b0d5',
-            2: 'red'
-        })
-})();
+        .factory('configService', configService);
 
+    configService.$inject = ['$http'];
+
+    function configService($http) {
+        var service = {
+            get:get
+        };
+
+        return service;
+
+        ///////////////
+        function get(cb){
+            var req = $http.get('http://192.168.1.10:3000/app/config/config.json');
+            req.then(function(data){
+                if (data.statusText =="OK"){
+                    var col = changeColor(data.data)
+                    cb(col)
+                }
+
+            },function(error){
+                console.log(error);
+                cb([]);
+            });
+
+           // return 
+        }
+        function changeColor (data) {
+            for (var i = data.length - 1; i >= 0; i--) {
+                if (data[i].estado == 1){
+                    data[i].color='#449d44';//aprobado
+                }
+                if (data[i].estado == 2){
+                    data[i].color='#c9302c';//rechazado
+                }
+
+            };
+             
+            return data;
+        }
+    }
+})();
+                             
 /**
  *  tbjscheduling  <sesparza>
  */
@@ -568,7 +620,7 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
                     today.hour = 0;
                     today.minute = 0;
 
-                    var diff = date.diff(today, 'hours');
+                    var diff = date.diff(today, 'days');
                     if (diff >= 0 && scope.applicants.length > 0) {
                         var event = {
                             _id: 0,
@@ -628,58 +680,6 @@ TEMPLATES['app/directives/tbjscheduling/tbjschedulingView.html'] = "<div class=\
     }
 })();
 
-/**
- *  config <sesparza>
- */
-
-(function() {
-    'use strict';
-
-    angular
-        .module('widget-calendar')
-        .factory('configService', configService);
-
-    configService.$inject = ['$http'];
-
-    function configService($http) {
-        var service = {
-            get:get
-        };
-
-        return service;
-
-        ///////////////
-        function get(cb){
-            var req = $http.get('http://192.168.1.10:3000/app/config/config.json');
-            req.then(function(data){
-                if (data.statusText =="OK"){
-                    var col = changeColor(data.data)
-                    cb(col)
-                }
-
-            },function(error){
-                console.log(error);
-                cb([]);
-            });
-
-           // return 
-        }
-        function changeColor (data) {
-            for (var i = data.length - 1; i >= 0; i--) {
-                if (data[i].estado == 1){
-                    data[i].color='#449d44';//aprobado
-                }
-                if (data[i].estado == 2){
-                    data[i].color='#c9302c';//rechazado
-                }
-
-            };
-             
-            return data;
-        }
-    }
-})();
-                             
 /**
  *  message Service <sesparza>
  */

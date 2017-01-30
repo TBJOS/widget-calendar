@@ -120,7 +120,7 @@
                     today.hour = 0;
                     today.minute = 0;
 
-                    var diff = date.diff(today, 'hours');
+                    var diff = date.diff(today, 'days');
                     if (diff >= 0 && scope.applicants.length > 0) {
                         var event = {
                             _id: 0,
